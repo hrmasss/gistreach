@@ -8,11 +8,8 @@ import { WorkspaceService, WorkspaceRole } from "@/server/services/workspace";
 import {
   withWorkspaceAccess,
   withWorkspaceAdmin,
-  withWorkspaceOwner,
   canManageUserRole
 } from "@/server/api/middleware/workspace";
-
-const workspaceService = new WorkspaceService(undefined as any); // Will be injected via context
 
 export const workspaceRouter = createTRPCRouter({
   // Create a new workspace
@@ -35,14 +32,15 @@ export const workspaceRouter = createTRPCRouter({
   // Get a specific workspace by ID
   getById: withWorkspaceAccess
     .query(async ({ ctx }) => {
-      return ctx.workspace;
+      const service = new WorkspaceService(ctx.db);
+      return service.getWorkspaceById(ctx.workspace.id, ctx.session.user.id);
     }),
 
   // Invite a member to the workspace
   inviteMember: withWorkspaceAdmin
     .input(z.object({
       email: z.string().email(),
-      role: z.nativeEnum(WorkspaceRole)
+      role: z.enum([WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER, WorkspaceRole.VIEWER])
     }))
     .mutation(async ({ ctx, input }) => {
       const service = new WorkspaceService(ctx.db);
@@ -58,7 +56,7 @@ export const workspaceRouter = createTRPCRouter({
   updateMemberRole: withWorkspaceAdmin
     .input(z.object({
       userId: z.string(),
-      role: z.nativeEnum(WorkspaceRole)
+      role: z.enum([WorkspaceRole.OWNER, WorkspaceRole.ADMIN, WorkspaceRole.MEMBER, WorkspaceRole.VIEWER])
     }))
     .mutation(async ({ ctx, input }) => {
       // Additional check: ensure user can manage the target user's role

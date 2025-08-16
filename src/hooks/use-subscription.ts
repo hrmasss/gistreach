@@ -48,11 +48,11 @@ export function useUsageLimit(resource: "socialAccounts" | "monthlyPosts" | "tea
 export function useSubscriptionGuard() {
   const { subscription, usage } = useSubscription();
 
-  const checkLimit = (resource: keyof typeof usage.usage) => {
+  const checkLimit = (resource: string) => {
     if (!usage || !subscription) return { allowed: false, reason: "Loading..." };
 
-    const current = usage.usage[resource];
-    const limit = usage.limits[resource];
+    const current = (usage.usage as any)[resource];
+    const limit = (usage.limits as any)[resource];
 
     if (limit === -1) return { allowed: true }; // Unlimited
 
@@ -105,7 +105,12 @@ export function useUsageWarnings() {
 
   if (!usage) return { warnings: [], isLoading: true };
 
-  const warnings = [];
+  const warnings: Array<{
+    type: "warning" | "error";
+    resource: string;
+    message: string;
+    action: string;
+  }> = [];
   const { utilization } = usage;
 
   // Check for high usage (>80%)

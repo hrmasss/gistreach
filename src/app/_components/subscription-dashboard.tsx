@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSubscription } from "@/hooks/use-subscription";
-import { SubscriptionPlan, Feature } from "@/server/services/subscription";
+import { SubscriptionPlan } from "@/server/services/subscription";
 import { UsageMonitor } from "./usage-monitor";
 
 export function SubscriptionDashboard() {
@@ -27,7 +27,7 @@ export function SubscriptionDashboard() {
 
   const handlePlanUpdate = async (planId: SubscriptionPlan) => {
     try {
-      await updatePlan(planId);
+      await updatePlan({ planId });
       setSelectedPlan(null);
     } catch (error) {
       console.error("Failed to update plan:", error);

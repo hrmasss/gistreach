@@ -27,21 +27,21 @@ export function encrypt(text: string): string {
     // Generate random salt and IV
     const salt = crypto.randomBytes(SALT_LENGTH);
     const iv = crypto.randomBytes(IV_LENGTH);
-    
+
     // Derive key from master key and salt
     const key = deriveKey(masterKey, salt);
-    
+
     // Create cipher
-    const cipher = crypto.createCipherGCM(ALGORITHM, key, iv);
+    const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
     cipher.setAAD(salt); // Use salt as additional authenticated data
-    
+
     // Encrypt the text
     let encrypted = cipher.update(text, "utf8", "hex");
     encrypted += cipher.final("hex");
-    
+
     // Get the authentication tag
     const tag = cipher.getAuthTag();
-    
+
     // Combine salt + iv + tag + encrypted data
     const combined = Buffer.concat([
       salt,
@@ -49,7 +49,7 @@ export function encrypt(text: string): string {
       tag,
       Buffer.from(encrypted, "hex")
     ]);
-    
+
     return combined.toString("base64");
   } catch (error) {
     console.error("Encryption error:", error);
@@ -69,25 +69,25 @@ export function decrypt(encryptedData: string): string {
 
     // Parse the combined data
     const combined = Buffer.from(encryptedData, "base64");
-    
+
     // Extract components
     const salt = combined.subarray(0, SALT_LENGTH);
     const iv = combined.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
     const tag = combined.subarray(SALT_LENGTH + IV_LENGTH, SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
     const encrypted = combined.subarray(SALT_LENGTH + IV_LENGTH + TAG_LENGTH);
-    
+
     // Derive key from master key and salt
     const key = deriveKey(masterKey, salt);
-    
+
     // Create decipher
-    const decipher = crypto.createDecipherGCM(ALGORITHM, key, iv);
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     decipher.setAAD(salt); // Use salt as additional authenticated data
     decipher.setAuthTag(tag);
-    
+
     // Decrypt the data
-    let decrypted = decipher.update(encrypted, "hex", "utf8");
+    let decrypted = decipher.update(encrypted, undefined, "utf8");
     decrypted += decipher.final("utf8");
-    
+
     return decrypted;
   } catch (error) {
     console.error("Decryption error:", error);
@@ -145,12 +145,12 @@ export function secureCompare(a: string, b: string): boolean {
   if (a.length !== b.length) {
     return false;
   }
-  
+
   let result = 0;
   for (let i = 0; i < a.length; i++) {
     result |= a.charCodeAt(i) ^ b.charCodeAt(i);
   }
-  
+
   return result === 0;
 }
 
@@ -181,9 +181,9 @@ export class CredentialManager {
     }
 
     // Encrypt additional metadata
-    const metadata = { ...credentials };
-    delete metadata.accessToken;
-    delete metadata.refreshToken;
+    const metadata: Record<string, any> = { ...credentials };
+    delete (metadata as any).accessToken;
+    delete (metadata as any).refreshToken;
 
     if (Object.keys(metadata).length > 0) {
       result.encryptedMetadata = encryptObject(metadata);

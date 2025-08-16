@@ -31,7 +31,7 @@ export function PlanComparison({ onSelectPlan, showCurrentPlan = true }: PlanCom
     } else {
       setSelectedPlan(planId);
       try {
-        await updatePlan(planId);
+        await updatePlan({ planId });
         setSelectedPlan(null);
       } catch (error) {
         console.error("Failed to update plan:", error);

@@ -129,7 +129,8 @@ export class WorkspaceService {
         _count: {
           select: {
             socialAccounts: true,
-            content: true
+            content: true,
+            members: true
           }
         }
       }

@@ -1,7 +1,7 @@
 "use client";
 
-import { ReactNode } from "react";
-import { useSubscriptionGuard, useFeatureAccess } from "@/hooks/use-subscription";
+import { type ReactNode } from "react";
+import { useSubscriptionGuard } from "@/hooks/use-subscription";
 import { Feature } from "@/server/services/subscription";
 
 interface UsageGuardProps {
@@ -19,7 +19,7 @@ export function UsageGuard({
   fallback,
   showUpgrade = true
 }: UsageGuardProps) {
-  const { checkLimit, checkFeature, getUpgradeMessage, isLoading } = useSubscriptionGuard();
+  const { checkLimit, checkFeature, isLoading } = useSubscriptionGuard();
 
   if (isLoading) {
     return (
