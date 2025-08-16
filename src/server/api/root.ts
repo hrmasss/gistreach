@@ -1,4 +1,7 @@
 import { postRouter } from "@/server/api/routers/post";
+import { workspaceRouter } from "@/server/api/routers/workspace";
+import { subscriptionRouter } from "@/server/api/routers/subscription";
+import { credentialRouter } from "@/server/api/routers/credential";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -8,6 +11,9 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   post: postRouter,
+  workspace: workspaceRouter,
+  subscription: subscriptionRouter,
+  credential: credentialRouter,
 });
 
 // export type definition of API
