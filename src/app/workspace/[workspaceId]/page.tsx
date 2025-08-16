@@ -4,18 +4,19 @@ import { api } from "@/trpc/react";
 import Link from "next/link";
 
 interface WorkspaceDashboardProps {
-  params: {
+  params: Promise<{
     workspaceId: string;
-  };
+  }>;
 }
 
-export default function WorkspaceDashboard({ params }: WorkspaceDashboardProps) {
+export default async function WorkspaceDashboard({ params }: WorkspaceDashboardProps) {
+  const { workspaceId } = await params;
   const { data: workspace, isLoading } = api.workspace.getById.useQuery({
-    workspaceId: params.workspaceId
+    workspaceId
   });
 
   const { data: usage } = api.workspace.getUsage.useQuery({
-    workspaceId: params.workspaceId
+    workspaceId
   });
 
   if (isLoading) {
@@ -51,7 +52,7 @@ export default function WorkspaceDashboard({ params }: WorkspaceDashboardProps) 
               <p className="text-gray-600 mt-1">Welcome to your workspace dashboard</p>
             </div>
             <Link
-              href={`/workspace/${params.workspaceId}/settings`}
+              href={`/workspace/${workspaceId}/settings`}
               className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
